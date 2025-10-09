@@ -120,4 +120,14 @@ def generar_pasos():
             break
 
 
-            
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/stream')
+def stream():
+    return Response(generar_pasos(), mimetype="text/event-stream")
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
