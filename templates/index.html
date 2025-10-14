@@ -7,13 +7,22 @@
         td { width: 50px; height: 50px; border: 1px solid #333; text-align: center; font-size: 18px; font-weight: bold; }
         .vacio { background-color: white; }
         .ocupado { background-color: #4CAF50; color: white; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        button, input[type="range"] { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        #velocidad-container { text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
     <h1>♞ Recorrido del Caballo Paso a Paso</h1>
 
-    <button onclick="iniciarRecorrido()">Iniciar Recorrido</button>
+    <div style="text-align:center;">
+        <button onclick="iniciarRecorrido()">Iniciar Recorrido</button>
+    </div>
+
+    <div id="velocidad-container">
+        <label for="velocidad">Velocidad (1 lento → 0 rápido): </label>
+        <input type="range" id="velocidad" min="0" max="1" step="0.1" value="1" oninput="actualizarVelocidad(this.value)">
+        <span id="valorVelocidad">1.0</span>
+    </div>
 
     <table id="tabla"></table>
 
@@ -22,7 +31,7 @@
 
         function iniciarRecorrido() {
             if (source) {
-                source.close();  // cerrar conexión anterior si existe
+                source.close();
             }
 
             source = new EventSource("/stream");
@@ -32,9 +41,9 @@
                 const filas = paso_str.split(';').map(f => f.split(',').map(Number));
 
                 let html = '';
-                for(let i=0; i<filas.length; i++){
+                for (let i = 0; i < filas.length; i++) {
                     html += '<tr>';
-                    for(let j=0; j<filas[i].length; j++){
+                    for (let j = 0; j < filas[i].length; j++) {
                         const valor = filas[i][j];
                         const clase = valor != 0 ? 'ocupado' : 'vacio';
                         html += `<td class="${clase}">${valor != 0 ? valor : ''}</td>`;
@@ -46,7 +55,17 @@
 
             source.onerror = function() {
                 source.close();
-            }
+            };
+        }
+
+       
+        function actualizarVelocidad(valor) {
+            document.getElementById('valorVelocidad').textContent = parseFloat(valor).toFixed(1);
+            fetch('/set_velocidad', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ velocidad: valor })
+            });
         }
     </script>
 </body>
