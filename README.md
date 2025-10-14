@@ -12,3 +12,6 @@
 
 ## Fecha: 09/10/2025 (Autor: Yader Siezar).
   Se hacen cambios menores en el codigo y se añade la carpeta "templates" que aloja el archivo index.html (de la interfaz grafica).
+
+## Fecha: 13/10/2025 (Autor: Deiner Cespedes).
+  Se realiza un commit de un algoritmo funcional en el modo "Recorrido abierto" y "Recorrido cerrado" (Cerrado aun no se encuentra en el html pero funciona de manera interna)
