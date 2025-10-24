@@ -15,3 +15,6 @@
 
 ## Fecha: 13/10/2025 (Autor: Deiner Cespedes).
   Se realiza un commit de un algoritmo funcional en el modo "Recorrido abierto" y "Recorrido cerrado" (Cerrado aun no se encuentra en el html pero funciona de manera interna)
+
+## Fecha: 23/10/2025 (Autor: Yader Siezar).
+  Se añade el codigo final del proyecto sin documentacion.
