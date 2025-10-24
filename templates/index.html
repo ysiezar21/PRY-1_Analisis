@@ -103,35 +103,43 @@
     <h1>♞ Recorrido del Caballo</h1>
 
     <div class="container">
+        <!-- Botones de inicio y detencion -->
         <button id="btn-iniciar" onclick="iniciarRecorrido()">Iniciar Recorrido</button>
         <button id="btn-detener" class="hidden" onclick="detenerRecorrido()">Detener Recorrido</button>
         
+        <!-- Mensajes de estado -->
         <div id="mensaje" class="mensaje hidden"></div>
-        
+
+        <!-- Panel de configuracion del tablero -->
         <div id="config-panel" class="config-panel">
             <h3>Configuración del Tablero</h3>
             
+            <!-- Input tamaño del tablero -->
             <div class="input-group">
                 <label for="tamanio">Tamaño del tablero (n):</label>
                 <input type="number" id="tamanio" min="4" max="7" value="5">
             </div>
             
+            <!-- Input fila inicial -->
             <div class="input-group">
                 <label for="fila-inicial">Fila inicial (f):</label>
                 <input type="number" id="fila-inicial" min="1" max="5" value="1">
             </div>
             
+            <!-- Input columna inicial -->
             <div class="input-group">
                 <label for="columna-inicial">Columna inicial (c):</label>
                 <input type="number" id="columna-inicial" min="1" max="5" value="1">
             </div>
             
+            <!-- Checkbox para modo cerrado -->
             <div class="input-group">
                 <label for="modo-restringido">Recorrido cerrado:</label>
                 <input type="checkbox" id="modo-restringido">
             </div>
         </div>
-
+        
+        <!-- Control de velocidad -->
         <div id="velocidad-container">
             <label for="velocidad">Velocidad (1 lento → 0 rápido): </label>
             <input type="range" id="velocidad" min="0" max="1" step="0.1" value="1" oninput="actualizarVelocidad(this.value)">
@@ -139,16 +147,21 @@
         </div>
     </div>
 
+    <!-- Texto que muestra el tipo de recorrido -->
     <h3 id="tipo-recorrido" style="text-align: center; color: #5cb85c; margin: 20px auto; text-transform: uppercase;"></h3>
+    
+    <!-- Tablero de juego -->
     <table id="tabla"></table>
 
     <script>
-        let source;
-        let ultimoMensaje = '';
-        let matrizAnterior = null;
-        let tiempoInicio;
-        let contadorMovimientos = 0;
+        // Variables globales usadas en el flujo del recorrido
+        let source; // Fuente del stream de datos
+        let ultimoMensaje = ''; // Guarda el ultimo mensaje recibido del servidor
+        let matrizAnterior = null; // Guarda la matriz anterior para detectar retrocesos
+        let tiempoInicio; // Marca el tiempo de inicio del recorrido
+        let contadorMovimientos = 0; // Contador de movimientos realizados
 
+        // Muestra un mensaje en pantalla con su tipo (exito o error)
         function mostrarMensaje(texto, tipo) {
             const mensaje = document.getElementById('mensaje');
             mensaje.innerHTML = texto;
@@ -156,10 +169,11 @@
             mensaje.classList.remove('hidden');
         }
 
+        // Oculta el mensaje actual
         function ocultarMensaje() {
             document.getElementById('mensaje').classList.add('hidden');
         }
-
+        // Detiene el recorrido y muestra un resumen si aplica
         function detenerRecorrido() {
             if (source) {
                 source.close();
@@ -173,6 +187,7 @@
                 mensajeDetener += `<br>Tiempo: ${tiempoTotal.toFixed(2)} segundos<br>Movimientos: ${contadorMovimientos}`;
             }
             
+            // Muestra mensaje y restaura interfaz inicial
             mostrarMensaje(mensajeDetener, 'error');
             document.getElementById('btn-iniciar').classList.remove('hidden');
             document.getElementById('btn-detener').classList.add('hidden');
@@ -194,7 +209,7 @@
                 document.getElementById('columna-inicial').value = max;
             }
         });
-
+        // Inicia el recorrido del caballo con los parametros ingresados
         async function iniciarRecorrido() {
             if (source) {
                 source.close();
@@ -238,6 +253,7 @@
                 htmlInicial += '</tr>';
             }
             document.getElementById('tabla').innerHTML = htmlInicial;
+             // Pausa corta antes de iniciar el recorrido
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             ultimoMensaje = '';
@@ -250,6 +266,7 @@
             // Iniciar stream con parámetros
             source = new EventSource(`/stream?n=${n}&modo=${modo}&f=${f}&c=${c}`);
 
+            // Maneja cada mensaje recibido (cada paso del recorrido)
             source.onmessage = function(event) {
                 contadorMovimientos++;
                 const paso_str = event.data;
@@ -287,7 +304,7 @@
                         if (casillaRetroceso) break;
                     }
                 }
-
+                // Redibuja el tablero segun el estado actual
                 let html = '';
                 for (let i = 0; i < filas.length; i++) {
                     html += '<tr>';
@@ -299,6 +316,7 @@
                         
                         // Determinar clase según el estado
                         let clase = colorBase;
+                        
                         if (valor !== 0) {
                             clase = 'ocupado';
                         } else if (casillaRetroceso && casillaRetroceso.i === i && casillaRetroceso.j === j) {
@@ -319,7 +337,7 @@
                 // Guardar matriz actual para la próxima comparación
                 matrizAnterior = filas.map(fila => [...fila]);
             };
-
+            // Maneja cierre de la conexión (fin del recorrido o error)
             source.onerror = function() {
                 source.close();
                 source = null;
@@ -341,6 +359,7 @@
                         }
                     }
                     
+                    // Muestra mensaje segun resultado final
                     if (casillasMarcadas === totalCasillas) {
                         mostrarMensaje(`¡Recorrido completado exitosamente! ✓<br>
                                       Tiempo: ${tiempoTotal.toFixed(2)} segundos<br>
@@ -362,9 +381,13 @@
                 document.getElementById('btn-detener').classList.add('hidden');
             };
         }
-
+        // Actualiza la velocidad del recorrido segun el valor seleccionado en el control deslizante
         function actualizarVelocidad(valor) {
+
+            // Muestra en pantalla el valor de velocidad actual con un decimal
             document.getElementById('valorVelocidad').textContent = parseFloat(valor).toFixed(1);
+            
+            // Envía el valor al servidor para actualizar la velocidad global
             fetch('/set_velocidad', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
