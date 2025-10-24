@@ -1,64 +1,368 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Recorrido del Caballo Paso a Paso</title>
+    <title>Recorrido del Caballo</title>
     <style>
-        table { border-collapse: collapse; margin: 20px auto; }
-        td { width: 50px; height: 50px; border: 1px solid #333; text-align: center; font-size: 18px; font-weight: bold; }
-        .vacio { background-color: white; }
-        .ocupado { background-color: #4CAF50; color: white; }
-        button, input[type="range"] { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top: 20px; }
-        #velocidad-container { text-align: center; margin-top: 15px; }
+        /* Estilos cuerpo de la página */
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0c130c; color: #ffffff; margin: 0; padding: 20px;}
+        
+        /* Estilo del título principal */
+        h1 { text-align: center; color: #ffffff; font-weight: 700; margin-bottom: 30px; letter-spacing: 2px; text-transform: uppercase;}
+        
+        /* Estilo del tablero */
+        table { border-collapse: collapse; margin: 20px auto; border: 2px solid #3a523a;}
+        
+        /* Estilo casillas */
+        td { width: 50px; height: 50px; border: 1px solid #2a3a2a; text-align: center; font-size: 18px; font-weight: bold; }
+        
+        /* Casilla blanca */
+        .blanca { background-color: #e8f5e8; color: #2a3a2a; }
+        
+        /* Casilla negra */
+        .negra { background-color: #3a523a; color: #ffffff; }
+        
+        /* Casilla recorrida */
+        .ocupado { background-color: #4a7c4a; color: #ffffff; font-weight: 800; }
+        
+        /* Casilla retroceso */
+        .retroceso { background-color: #8c4a4a; color: #ffffff; animation: parpadeo 0.3s; font-weight: 800; }
+        
+        .actual {background-color: #4cc18e; color: #ffffff; font-weight: 800;}
+
+        /* Animación de parpadeo para retrocesos */
+        @keyframes parpadeo {0%, 100% { opacity: 1; } 50% { opacity: 0.6; }}
+        
+        /* Estilo base botones */
+        button { padding: 12px 24px; font-size: 16px; cursor: pointer; margin: 10px 5px; background-color: #2a3a2a; color: #ffffff; border: 2px solid #4a7c4a; font-weight: 700; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;}
+        
+        /* Efecto botones normales */
+        button:hover { background-color: #3a523a; border-color: #5cb85c;}
+        
+        /* Estilo botón de detener */
+        #btn-detener {background-color: #3a2a2a; border-color: #8c4a4a; color: #ffffff;}
+        
+        /* Efecto botón de detener */
+        #btn-detener:hover {background-color: #523a3a; border-color: #b85c5c;}
+        
+        /* Estilo para controles de entrada (range y number) */
+        input[type="range"], input[type="number"] { padding: 8px; font-size: 14px; background-color: #2a3a2a; color: #ffffff; border: 2px solid #4a7c4a; font-weight: 600;}
+        
+        /* Color barra de velocidad */
+        input[type="range"] {accent-color: #5cb85c;}
+        
+        /* Checkbox color y tamaño */
+        input[type="checkbox"] {transform: scale(1.3); accent-color: #5cb85c;}
+        
+        /* Panel centrado */
+        .container { text-align: center; max-width: 600px; margin: 0 auto; }
+        
+        /* Borde panel */
+        .config-panel { background-color: #1a231a; padding: 25px; border: 2px solid #4a7c4a; margin: 20px auto; }
+        
+        /* Título panel */
+        .config-panel h3 {margin-top: 0; color: #ffffff; border-bottom: 2px solid #4a7c4a; padding-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        /* Alineacion de inputs */
+        .input-group { margin: 18px 0; text-align: left; }
+        
+        /* Etiquetas de los inputs */
+        .input-group label { display: inline-block; width: 200px; font-weight: 700; color: #ffffff;}
+        
+        /* Ancho inputs numéricos */
+        .input-group input { width: 80px; }
+        
+        /* Contenedor control de velocidad */
+        #velocidad-container { margin-top: 20px; padding: 20px; background-color: #1a231a; border: 2px solid #4a7c4a;}
+        
+        /* Etiqueta control de velocidad */
+        #velocidad-container label {color: #ffffff; font-weight: 600;}
+        
+        /* Valor numérico de velocidad */
+        #valorVelocidad {color: #ffffff; font-weight: 700; margin-left: 10px;}
+        
+        /* Ocultar elementos */
+        .hidden { display: none; }
+        
+        /* Estilo para mensajes */
+        .mensaje { padding: 18px; margin: 20px auto; border: 2px solid; font-weight: 700; max-width: 600px; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
+        
+        /* Color mensaje de éxito */
+        .exito { background-color: #1a231a; color: #ffffff; border-color: #4a7c4a;}
+        
+        /* Color mensaje de error*/
+        .error { background-color: #231a1a; color: #ffffff; border-color: #8c4a4a;}
+        
+        /* Ancho del slider de velocidad */
+        #velocidad {width: 200px; margin: 0 15px;}
+        
+        /* Efecto de foco para elementos interactivos */
+        button:focus, input:focus {outline: none; box-shadow: 0 0 5px rgba(60, 198, 60, 0.5);}
     </style>
 </head>
 <body>
-    <h1>♞ Recorrido del Caballo Paso a Paso</h1>
+    <h1>♞ Recorrido del Caballo</h1>
 
-    <div style="text-align:center;">
-        <button onclick="iniciarRecorrido()">Iniciar Recorrido</button>
+    <div class="container">
+        <button id="btn-iniciar" onclick="iniciarRecorrido()">Iniciar Recorrido</button>
+        <button id="btn-detener" class="hidden" onclick="detenerRecorrido()">Detener Recorrido</button>
+        
+        <div id="mensaje" class="mensaje hidden"></div>
+        
+        <div id="config-panel" class="config-panel">
+            <h3>Configuración del Tablero</h3>
+            
+            <div class="input-group">
+                <label for="tamanio">Tamaño del tablero (n):</label>
+                <input type="number" id="tamanio" min="4" max="7" value="5">
+            </div>
+            
+            <div class="input-group">
+                <label for="fila-inicial">Fila inicial (f):</label>
+                <input type="number" id="fila-inicial" min="1" max="5" value="1">
+            </div>
+            
+            <div class="input-group">
+                <label for="columna-inicial">Columna inicial (c):</label>
+                <input type="number" id="columna-inicial" min="1" max="5" value="1">
+            </div>
+            
+            <div class="input-group">
+                <label for="modo-restringido">Recorrido cerrado:</label>
+                <input type="checkbox" id="modo-restringido">
+            </div>
+        </div>
+
+        <div id="velocidad-container">
+            <label for="velocidad">Velocidad (1 lento → 0 rápido): </label>
+            <input type="range" id="velocidad" min="0" max="1" step="0.1" value="1" oninput="actualizarVelocidad(this.value)">
+            <span id="valorVelocidad">1.0</span>
+        </div>
     </div>
 
-    <div id="velocidad-container">
-        <label for="velocidad">Velocidad (1 lento → 0 rápido): </label>
-        <input type="range" id="velocidad" min="0" max="1" step="0.1" value="1" oninput="actualizarVelocidad(this.value)">
-        <span id="valorVelocidad">1.0</span>
-    </div>
-
+    <h3 id="tipo-recorrido" style="text-align: center; color: #5cb85c; margin: 20px auto; text-transform: uppercase;"></h3>
     <table id="tabla"></table>
 
     <script>
         let source;
+        let ultimoMensaje = '';
+        let matrizAnterior = null;
+        let tiempoInicio;
+        let contadorMovimientos = 0;
 
-        function iniciarRecorrido() {
+        function mostrarMensaje(texto, tipo) {
+            const mensaje = document.getElementById('mensaje');
+            mensaje.innerHTML = texto;
+            mensaje.className = `mensaje ${tipo}`;
+            mensaje.classList.remove('hidden');
+        }
+
+        function ocultarMensaje() {
+            document.getElementById('mensaje').classList.add('hidden');
+        }
+
+        function detenerRecorrido() {
+            if (source) {
+                source.close();
+                source = null;
+            }
+            
+            // Calcular tiempo si se inició el recorrido
+            let mensajeDetener = 'Recorrido detenido por el usuario';
+            if (tiempoInicio) {
+                const tiempoTotal = (Date.now() - tiempoInicio) / 1000;
+                mensajeDetener += `<br>Tiempo: ${tiempoTotal.toFixed(2)} segundos<br>Movimientos: ${contadorMovimientos}`;
+            }
+            
+            mostrarMensaje(mensajeDetener, 'error');
+            document.getElementById('btn-iniciar').classList.remove('hidden');
+            document.getElementById('btn-detener').classList.add('hidden');
+            document.getElementById('config-panel').classList.remove('hidden');
+            matrizAnterior = null;
+        }
+
+        // Actualizar límites de fila y columna cuando cambia el tamaño
+        document.getElementById('tamanio').addEventListener('input', function() {
+            const max = parseInt(this.value);
+            document.getElementById('fila-inicial').max = max;
+            document.getElementById('columna-inicial').max = max;
+            
+            // Ajustar valores si exceden el nuevo máximo
+            if (parseInt(document.getElementById('fila-inicial').value) > max) {
+                document.getElementById('fila-inicial').value = max;
+            }
+            if (parseInt(document.getElementById('columna-inicial').value) > max) {
+                document.getElementById('columna-inicial').value = max;
+            }
+        });
+
+        async function iniciarRecorrido() {
             if (source) {
                 source.close();
             }
 
-            source = new EventSource("/stream");
+            // Obtener valores de la interfaz
+            const n = parseInt(document.getElementById('tamanio').value);
+            const f = parseInt(document.getElementById('fila-inicial').value) - 1; // Convertir de 1-indexed a 0-indexed
+            const c = parseInt(document.getElementById('columna-inicial').value) - 1; // Convertir de 1-indexed a 0-indexed
+            const modo = document.getElementById('modo-restringido').checked;
+
+            // Mostrar tipo de recorrido
+            const tipoRecorrido = document.getElementById('tipo-recorrido');
+            tipoRecorrido.textContent = modo ? '♘ Recorrido Cerrado' : '♞ Recorrido Abierto';
+
+            // Validaciones
+            if (f < 0 || f >= n || c < 0 || c >= n) {
+                mostrarMensaje(`La fila y columna deben estar entre 1 y ${n}`, 'error');
+                return;
+            }
+
+            // Ocultar panel de configuración y mensaje previo
+            document.getElementById('config-panel').classList.add('hidden');
+            ocultarMensaje();
+            document.getElementById('btn-iniciar').classList.add('hidden');
+            document.getElementById('btn-detener').classList.remove('hidden');
+            document.getElementById('tabla').innerHTML = '';
+
+            // Mostrar caballo en la posicion inicial
+            let htmlInicial = '';
+            for (let i = 0; i < n; i++) {
+                htmlInicial += '<tr>';
+                for (let j = 0; j < n; j++) {
+                    const colorBase = (i + j) % 2 === 0 ? 'blanca' : 'negra';
+                    if (i === f && j === c) {
+                        htmlInicial += `<td class="actual" style="font-size: 24px;">♞</td>`;
+                    } else {
+                        htmlInicial += `<td class="${colorBase}"></td>`;
+                    }
+                }
+                htmlInicial += '</tr>';
+            }
+            document.getElementById('tabla').innerHTML = htmlInicial;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            ultimoMensaje = '';
+            matrizAnterior = null;
+
+            // Iniciar contadores
+            tiempoInicio = Date.now();
+            contadorMovimientos = 0;
+
+            // Iniciar stream con parámetros
+            source = new EventSource(`/stream?n=${n}&modo=${modo}&f=${f}&c=${c}`);
 
             source.onmessage = function(event) {
+                contadorMovimientos++;
                 const paso_str = event.data;
+                ultimoMensaje = paso_str;
                 const filas = paso_str.split(';').map(f => f.split(',').map(Number));
+
+                // Encontrar la posición actual
+                let posicionActual = {i: -1, j: -1};
+                let maxValor = 0;
+                let valores = [];
+                
+                for (let i = 0; i < filas.length; i++) {
+                    for (let j = 0; j < filas[i].length; j++) {
+                        if (filas[i][j] > 0) {
+                            valores.push({i, j, valor: filas[i][j]});
+                            if (filas[i][j] > maxValor) {
+                                maxValor = filas[i][j];
+                                posicionActual = {i, j};
+                            }
+                        }
+                    }
+                }
+
+                // Detectar retroceso
+                let casillaRetroceso = null;
+                if (matrizAnterior) {
+                    for (let i = 0; i < filas.length; i++) {
+                        for (let j = 0; j < filas[i].length; j++) {
+                            // Si había un valor y ahora es 0, es un retroceso
+                            if (matrizAnterior[i][j] !== 0 && filas[i][j] === 0) {
+                                casillaRetroceso = {i, j};
+                                break;
+                            }
+                        }
+                        if (casillaRetroceso) break;
+                    }
+                }
 
                 let html = '';
                 for (let i = 0; i < filas.length; i++) {
                     html += '<tr>';
                     for (let j = 0; j < filas[i].length; j++) {
                         const valor = filas[i][j];
-                        const clase = valor != 0 ? 'ocupado' : 'vacio';
-                        html += `<td class="${clase}">${valor != 0 ? valor : ''}</td>`;
+                        
+                        // Determinar color base del tablero (patrón ajedrez)
+                        const colorBase = (i + j) % 2 === 0 ? 'blanca' : 'negra';
+                        
+                        // Determinar clase según el estado
+                        let clase = colorBase;
+                        if (valor !== 0) {
+                            clase = 'ocupado';
+                        } else if (casillaRetroceso && casillaRetroceso.i === i && casillaRetroceso.j === j) {
+                            clase = 'retroceso';
+                        }
+                        
+                        // Mostrar caballo en la posición actual
+                        if (i === posicionActual.i && j === posicionActual.j) {
+                            html += `<td class="${'actual'}" style="font-size: 24px;">♞</td>`;
+                        } else {
+                            html += `<td class="${clase}">${valor !== 0 ? valor : ''}</td>`;
+                        }
                     }
                     html += '</tr>';
                 }
                 document.getElementById('tabla').innerHTML = html;
+
+                // Guardar matriz actual para la próxima comparación
+                matrizAnterior = filas.map(fila => [...fila]);
             };
 
             source.onerror = function() {
                 source.close();
+                source = null;
+                matrizAnterior = null;
+                
+                // Calcular tiempo transcurrido
+                const tiempoFin = Date.now();
+                const tiempoTotal = (tiempoFin - tiempoInicio) / 1000; // en segundos
+                
+                // Verificar si se completó el tablero
+                if (ultimoMensaje) {
+                    const filas = ultimoMensaje.split(';').map(f => f.split(',').map(Number));
+                    const totalCasillas = n * n;
+                    let casillasMarcadas = 0;
+                    
+                    for (let i = 0; i < filas.length; i++) {
+                        for (let j = 0; j < filas[i].length; j++) {
+                            if (filas[i][j] !== 0) casillasMarcadas++;
+                        }
+                    }
+                    
+                    if (casillasMarcadas === totalCasillas) {
+                        mostrarMensaje(`¡Recorrido completado exitosamente! ✓<br>
+                                      Tiempo: ${tiempoTotal.toFixed(2)} segundos<br>
+                                      Movimientos: ${contadorMovimientos}`, 'exito');
+                    } else {
+                        mostrarMensaje(`No hay solución para esta configuración de tablero<br>
+                                      Tiempo: ${tiempoTotal.toFixed(2)} segundos<br>
+                                      Movimientos: ${contadorMovimientos}`, 'error');
+                    }
+                } else {
+                    mostrarMensaje(`Error en la conexión o no hay solución<br>
+                                  Tiempo: ${tiempoTotal.toFixed(2)} segundos<br>
+                                  Movimientos: ${contadorMovimientos}`, 'error');
+                }
+                
+                // Mostrar panel de configuración nuevamente
+                document.getElementById('config-panel').classList.remove('hidden');
+                document.getElementById('btn-iniciar').classList.remove('hidden');
+                document.getElementById('btn-detener').classList.add('hidden');
             };
         }
 
-       
         function actualizarVelocidad(valor) {
             document.getElementById('valorVelocidad').textContent = parseFloat(valor).toFixed(1);
             fetch('/set_velocidad', {
