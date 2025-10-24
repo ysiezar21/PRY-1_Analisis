@@ -22,5 +22,5 @@
 ## Fecha: 23/10/2025 (Autor: Esteban Rodríguez).
   Se añade la versión final de la interfaz grafica para el correcto funcionamiento del proyecto.
 
-## Fecha: 13/10/2025 (Autor: Deiner Cespedes).
+## Fecha: 24/10/2025 (Autor: Deiner Cespedes).
   Se añade la documentacion interna al codigo fuente y al documento html.
