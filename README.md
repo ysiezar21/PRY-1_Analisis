@@ -18,3 +18,6 @@
 
 ## Fecha: 23/10/2025 (Autor: Yader Siezar).
   Se añade el codigo final del proyecto sin documentacion.
+
+## Fecha: 23/10/2025 (Autor: Esteban Rodríguez).
+  Se añade la versión final de la interfaz grafica para el correcto funcionamiento del proyecto.
